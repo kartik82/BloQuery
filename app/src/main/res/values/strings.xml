@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">BloQuery</string>
+    <string name="tv_register_email">Email</string>
+    <string name="tv_register_password">Password</string>
+    <string name="btn_register_register">REGISTER</string>
+    <string name="tv_register_clicklogin">Already Registered? Click here to Login</string>
+    <string name="tv_login_email">Email</string>
+    <string name="tv_login_password">Password</string>
+    <string name="btn_login_login">LOGIN</string>
+    <string name="tv_login_clickregister">Don\'t have an account? Click here to register</string>
 </resources>

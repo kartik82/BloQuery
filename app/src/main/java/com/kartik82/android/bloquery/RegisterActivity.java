@@ -26,10 +26,10 @@ public class RegisterActivity extends AppCompatActivity {
         final EditText et_register_password = (EditText) findViewById(R.id.et_register_password);
         Button btn_register_register = (Button) findViewById(R.id.btn_register_register);
 
-        btn_register_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
+        if (btn_register_register != null && et_register_email != null && et_register_password != null) {
+            btn_register_register.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     Firebase ref = new Firebase(DatabaseConfig.FIREBASE_URL);
                     ref.createUser(et_register_email.getText().toString(), et_register_password.getText().toString(), new Firebase.ValueResultHandler<Map<String, Object>>() {
                         @Override
@@ -44,28 +44,22 @@ public class RegisterActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "There was an error in creating your account.", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-                } catch (Exception e) {
-
                 }
-            }
-        });
+            });
+        }
 
         // Show Login Activity
         TextView tv_register_clicklogin = (TextView) findViewById(R.id.tv_register_clicklogin);
 
-        tv_register_clicklogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
+        if (tv_register_clicklogin != null) {
+            tv_register_clicklogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
-
-                } catch (Exception e) {
-
                 }
-            }
-        });
+            });
+        }
 
     }
 }

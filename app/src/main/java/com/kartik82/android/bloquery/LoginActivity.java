@@ -27,10 +27,10 @@ public class LoginActivity extends AppCompatActivity {
         final EditText et_login_password = (EditText) findViewById(R.id.et_login_password);
         Button btn_login_login = (Button) findViewById(R.id.btn_login_login);
 
-        btn_login_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
+        if (btn_login_login != null && et_login_email != null && et_login_password != null) {
+            btn_login_login.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     Firebase ref = new Firebase(DatabaseConfig.FIREBASE_URL);
                     ref.authWithPassword(et_login_email.getText().toString(), et_login_password.getText().toString(), new Firebase.AuthResultHandler() {
                         @Override
@@ -45,28 +45,22 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Invalid Credentials!", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-                } catch (Exception e) {
-
                 }
-            }
-        });
+            });
+        }
 
         // Show Register Activity
         TextView tv_login_clickregister = (TextView) findViewById(R.id.tv_login_clickregister);
 
-        tv_login_clickregister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
+        if (tv_login_clickregister != null) {
+            tv_login_clickregister.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                     startActivity(intent);
-
-                } catch (Exception e) {
-
                 }
-            }
-        });
+            });
+        }
 
     }
 }
