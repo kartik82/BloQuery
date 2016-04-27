@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="@color/colorPrimaryDark"
+    >
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/tv_addans_enterans"
+        android:id="@+id/tv_addans_enterans"
+        android:textColor="@color/primary_text_default_material_dark"
+        android:textAlignment="center"
+        android:padding="10dp"
+        android:textSize="15sp"
+        android:background="@color/colorPrimary"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/et_addans_enterans"
+        android:background="@color/background_material_light"
+        android:padding="20dp"
+        android:textSize="15sp"
+        android:layout_margin="20dp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_addans_addans"
+        android:id="@+id/btn_addans_addans"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"/>
+
+</LinearLayout>

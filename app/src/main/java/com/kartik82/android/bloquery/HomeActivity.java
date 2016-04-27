@@ -35,7 +35,6 @@ public class HomeActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Firebase.setAndroidContext(this);
 
@@ -81,6 +80,7 @@ public class HomeActivity extends AppCompatActivity {
                         Intent intent = new Intent(HomeActivity.this, QuestionActivity.class);
                         Bundle extras = new Bundle();
                         extras.putString("question_key",question_key);
+                        extras.putString("user_id",question_user);
                         intent.putExtras(extras);
                         startActivity(intent);
 
