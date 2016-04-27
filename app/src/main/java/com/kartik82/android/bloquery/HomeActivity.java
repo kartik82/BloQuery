@@ -1,23 +1,31 @@
 package com.kartik82.android.bloquery;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
 
+    private String question_user;
+    private String display_name;
     private Firebase ref;
     private Firebase questionsRef;
+    private Firebase usersRef;
     FirebaseRecyclerAdapter<Question, QuestionsAdapterViewHolder> frAdapter;
 
     @Override
@@ -25,10 +33,16 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         Firebase.setAndroidContext(this);
 
         ref = new Firebase(DatabaseConfig.FIREBASE_URL);
         questionsRef = ref.child("questions");
+
+        question_user = getIntent().getExtras().getString("user_id");
 
         final RecyclerView rv_home_questionslist = (RecyclerView) findViewById(R.id.rv_home_questionslist);
         rv_home_questionslist.setHasFixedSize(true);
@@ -37,8 +51,26 @@ public class HomeActivity extends AppCompatActivity {
 
         frAdapter = new FirebaseRecyclerAdapter<Question, QuestionsAdapterViewHolder>(Question.class, R.layout.list_question,QuestionsAdapterViewHolder.class, questionsRef) {
             @Override
-            public void populateViewHolder(QuestionsAdapterViewHolder questionsAdapterViewHolder, final Question question, final int position) {
+            public void populateViewHolder(final QuestionsAdapterViewHolder questionsAdapterViewHolder, final Question question, final int position) {
                 questionsAdapterViewHolder.tv_listquestion_text.setText(question.getQuestion_text());
+
+                usersRef = ref.child("users/" + question.getQuestion_user());
+
+                usersRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        User user = snapshot.getValue(User.class);
+                        display_name = user.getDisplay_name();
+                        questionsAdapterViewHolder.tv_listquestion_user.setText(display_name);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                        Toast.makeText(getApplicationContext(), "The read failed: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
 
                 questionsAdapterViewHolder.tv_listquestion_text.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -59,26 +91,31 @@ public class HomeActivity extends AppCompatActivity {
         };
         rv_home_questionslist.setAdapter(frAdapter);
 
-
-        //prepareTestQuestions();
-
     }
 
-    void prepareTestQuestions() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-        Map<String,Object> values = new HashMap<>();
-        values.put("question_text", "Who is the smartest human being that's ever lived?");
-        questionsRef.push().setValue(values);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
 
-        values.put("question_text", "Which fictional character do you hate most, and why?");
-        questionsRef.push().setValue(values);
+        if (id == R.id.action_question) {
+            FragmentManager fm = getFragmentManager();
+            AddQuestionFragment fragment_addquestion = new AddQuestionFragment();
 
-        values.put("question_text", "What color setting on a DSLR camera do professional photographers like to use?");
-        questionsRef.push().setValue(values);
+            Bundle extras = new Bundle();
+            extras.putString("user_id",question_user);
+            fragment_addquestion.setArguments(extras);
 
-        values.put("question_text", "What can I do in 5 minutes in the morning to make my whole day better?");
-        questionsRef.push().setValue(values);
+            fragment_addquestion.show(fm, "fragment_addquestion");
+            return true;
+        }
 
+        return super.onOptionsItemSelected(item);
     }
 
 
