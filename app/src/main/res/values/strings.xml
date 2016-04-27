@@ -1,11 +1,15 @@
 <resources>
     <string name="app_name">BloQuery</string>
+    <string name="action_question">Add Question</string>
     <string name="tv_register_email">Email</string>
     <string name="tv_register_password">Password</string>
+    <string name="tv_register_name">Display Name</string>
     <string name="btn_register_register">REGISTER</string>
     <string name="tv_register_clicklogin">Already Registered? Click here to Login</string>
     <string name="tv_login_email">Email</string>
     <string name="tv_login_password">Password</string>
     <string name="btn_login_login">LOGIN</string>
     <string name="tv_login_clickregister">Don\'t have an account? Click here to register</string>
+    <string name="tv_addqn_enterqn">Enter Question Below</string>
+    <string name="btn_addqn_addqn">Post New Question</string>
 </resources>
