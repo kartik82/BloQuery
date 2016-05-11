@@ -11,4 +11,11 @@
         android:icon="@drawable/ic_action_question"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/action_user"
+        android:title="@string/action_user"
+        android:orderInCategory="200"
+        android:icon="@drawable/ic_action_user"
+        app:showAsAction="always" />
+
 </menu>

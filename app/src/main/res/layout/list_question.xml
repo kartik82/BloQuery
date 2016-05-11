@@ -1,22 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/tv_listquestion_text"
-        android:background="@android:color/holo_green_light"
-        android:padding="10dp"/>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tv_listquestion_user"
-        android:layout_marginBottom="10dp"
-        android:padding="5dp"
-        android:layout_gravity="right"
-        android:background="@android:color/holo_orange_light"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_listquestion_text"
+            android:background="@android:color/holo_green_light"
+            android:padding="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
 
-</LinearLayout>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_listquestion_userphoto"
+            android:layout_gravity="right"
+            android:layout_below="@+id/tv_listquestion_text"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_listquestion_user"
+            android:padding="5dp"
+            android:layout_gravity="right"
+            android:background="@android:color/holo_orange_light"
+            android:layout_below="@+id/tv_listquestion_text"
+            android:layout_toLeftOf="@id/iv_listquestion_userphoto"
+            android:textSize="12sp"/>
+
+    </RelativeLayout>

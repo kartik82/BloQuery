@@ -3,6 +3,9 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -15,6 +18,7 @@
             android:label="BloQuery - Login">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER"/>
+
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
@@ -25,6 +29,14 @@
         <activity android:name=".HomeActivity">
         </activity>
         <activity android:name=".QuestionActivity">
+        </activity>
+        <activity
+            android:name=".UserActivity"
+            android:label="BloQuery - User Profile">
+        </activity>
+        <activity
+            android:name=".EditUserActivity"
+            android:label="BloQuery - Edit Profile">
         </activity>
     </application>
 
