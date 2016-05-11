@@ -2,6 +2,7 @@
     <string name="app_name">BloQuery</string>
     <string name="action_question">Add Question</string>
     <string name="action_answer">Add Answer</string>
+    <string name="action_user">User Profile</string>
     <string name="tv_register_email">Email</string>
     <string name="tv_register_password">Password</string>
     <string name="tv_register_name">Display Name</string>

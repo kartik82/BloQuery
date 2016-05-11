@@ -1,6 +1,7 @@
 package com.kartik82.android.bloquery;
 
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,14 +9,19 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
+import com.squareup.picasso.Picasso;
 
 public class QuestionActivity extends AppCompatActivity {
 
@@ -27,6 +33,7 @@ public class QuestionActivity extends AppCompatActivity {
     private Firebase answersRef;
     private Firebase usersRef;
     FirebaseRecyclerAdapter<Answer, AnswersAdapterViewHolder> frAdapter;
+    private Cloudinary cloudinary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,10 @@ public class QuestionActivity extends AppCompatActivity {
 
         ref = new Firebase(DatabaseConfig.FIREBASE_URL);
         questionsRef = ref.child("questions/" + question_key);
+
+        cloudinary = new Cloudinary(DatabaseConfig.CLOUDINARY_URL);
+
+        final ImageView iv_listanswer_userphoto = (ImageView)findViewById(R.id.iv_listanswer_userphoto);
 
         answer_user = getIntent().getExtras().getString("user_id");
 
@@ -94,6 +105,11 @@ public class QuestionActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         User user = snapshot.getValue(User.class);
+
+                        Picasso.with(getApplicationContext())
+                                .load(cloudinary.url().transformation(new Transformation().width(80).height(80).radius("max").crop("fit")).generate(user.getPhoto_url()))
+                                .into(answersAdapterViewHolder.iv_listanswer_userphoto);
+
                         display_name = user.getDisplay_name();
                         answersAdapterViewHolder.tv_listanswer_user.setText(display_name);
                     }
@@ -101,6 +117,35 @@ public class QuestionActivity extends AppCompatActivity {
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
                         Toast.makeText(getApplicationContext(), "The read failed: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                answersAdapterViewHolder.tv_listanswer_user.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String question_key = frAdapter.getRef(position).getKey();
+
+                        Intent intent = new Intent(QuestionActivity.this, UserActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString("user_id",answer.getAnswer_user());
+                        intent.putExtras(extras);
+                        startActivity(intent);
+
+                    }
+                });
+
+
+                answersAdapterViewHolder.iv_listanswer_userphoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String question_key = frAdapter.getRef(position).getKey();
+
+                        Intent intent = new Intent(QuestionActivity.this, UserActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString("user_id",answer.getAnswer_user());
+                        intent.putExtras(extras);
+                        startActivity(intent);
+
                     }
                 });
 

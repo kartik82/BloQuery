@@ -53,6 +53,9 @@ public class RegisterActivity extends AppCompatActivity {
                                                 Map<String, String> map = new HashMap<String, String>();
                                                 map.put("provider", authData.getProvider());
                                                 map.put("display_name", et_register_name.getText().toString());
+                                                map.put("photo_url", "BloQuery/default-avatar.png");
+                                                map.put("full_name","");
+                                                map.put("description","");
 
                                                 ref.child("users").child(authData.getUid()).setValue(map);
 
