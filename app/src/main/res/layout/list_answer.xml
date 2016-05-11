@@ -34,4 +34,26 @@
         android:layout_toRightOf="@id/iv_listanswer_userphoto"
         android:textSize="12sp"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_listanswer_vote"
+        android:padding="5dp"
+        android:background="@android:color/holo_orange_light"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/tv_listanswer_text"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_listanswer_numberofvotes"
+        android:padding="5dp"
+        android:background="@android:color/holo_blue_light"
+        android:layout_below="@+id/tv_listanswer_text"
+        android:layout_toRightOf="@id/tv_listanswer_user"
+        android:textSize="12sp"/>
+
+
 </RelativeLayout>

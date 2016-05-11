@@ -29,6 +29,7 @@ public class HomeActivity extends AppCompatActivity {
     private Firebase ref;
     private Firebase questionsRef;
     private Firebase usersRef;
+    private Firebase answersRef;
     FirebaseRecyclerAdapter<Question, QuestionsAdapterViewHolder> frAdapter;
     private Cloudinary cloudinary;
 
@@ -54,12 +55,37 @@ public class HomeActivity extends AppCompatActivity {
         final RecyclerView rv_home_questionslist = (RecyclerView) findViewById(R.id.rv_home_questionslist);
         rv_home_questionslist.setHasFixedSize(true);
 
-        rv_home_questionslist.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setReverseLayout(true);
+        mLayoutManager.setStackFromEnd(true);
+
+        rv_home_questionslist.setLayoutManager(mLayoutManager);
+
 
         frAdapter = new FirebaseRecyclerAdapter<Question, QuestionsAdapterViewHolder>(Question.class, R.layout.list_question,QuestionsAdapterViewHolder.class, questionsRef) {
             @Override
             public void populateViewHolder(final QuestionsAdapterViewHolder questionsAdapterViewHolder, final Question question, final int position) {
                 questionsAdapterViewHolder.tv_listquestion_text.setText(question.getQuestion_text());
+
+                answersRef = ref.child("answers/" + frAdapter.getRef(position).getKey());
+
+                answersRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        Long numberofanswers = snapshot.getChildrenCount();
+
+                        if (numberofanswers == 1) {
+                            questionsAdapterViewHolder.tv_listquestion_numberofanswers.setText(numberofanswers.toString() + " answer");
+                        } else {
+                            questionsAdapterViewHolder.tv_listquestion_numberofanswers.setText(numberofanswers.toString() + " answers");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                        Toast.makeText(getApplicationContext(), "The read failed: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
                 usersRef = ref.child("users/" + question.getQuestion_user());
 
@@ -69,7 +95,7 @@ public class HomeActivity extends AppCompatActivity {
                         User user = snapshot.getValue(User.class);
 
                         Picasso.with(getApplicationContext())
-                                .load(cloudinary.url().transformation(new Transformation().width(80).height(80).radius("max").crop("fit")).generate(user.getPhoto_url()))
+                                .load(cloudinary.url().transformation(new Transformation().width(80).height(80).radius("max").gravity("face").crop("thumb")).generate(user.getPhoto_url()))
                                 .into(questionsAdapterViewHolder.iv_listquestion_userphoto);
 
                         display_name = user.getDisplay_name();
