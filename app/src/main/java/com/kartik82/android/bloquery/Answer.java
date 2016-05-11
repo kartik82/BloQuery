@@ -8,14 +8,16 @@ public class Answer {
     private String answer_text;
     private String answer_user;
     private Long answer_time;
+    private Long answer_votes;
 
     public Answer() {
     }
 
-    public Answer(String answer_text, String answer_user, Long answer_time) {
+    public Answer(String answer_text, String answer_user, Long answer_time, Long answer_votes) {
         this.answer_text = answer_text;
         this.answer_user = answer_user;
         this.answer_time = answer_time;
+        this.answer_votes = answer_votes;
     }
 
     public String getAnswer_text() {
@@ -40,5 +42,13 @@ public class Answer {
 
     public void setAnswer_time(Long answer_time) {
         this.answer_time = answer_time;
+    }
+
+    public Long getAnswer_votes() {
+        return answer_votes;
+    }
+
+    public void setAnswer_votes(Long answer_votes) {
+        this.answer_votes = answer_votes;
     }
 }

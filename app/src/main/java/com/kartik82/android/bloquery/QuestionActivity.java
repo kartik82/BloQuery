@@ -19,9 +19,14 @@ import com.cloudinary.Transformation;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class QuestionActivity extends AppCompatActivity {
 
@@ -31,6 +36,8 @@ public class QuestionActivity extends AppCompatActivity {
     private Firebase ref;
     private Firebase questionsRef;
     private Firebase answersRef;
+    private Firebase votesRef;
+    private Firebase answervotesRef;
     private Firebase usersRef;
     FirebaseRecyclerAdapter<Answer, AnswersAdapterViewHolder> frAdapter;
     private Cloudinary cloudinary;
@@ -58,10 +65,10 @@ public class QuestionActivity extends AppCompatActivity {
         questionsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                    Question question = snapshot.getValue(Question.class);
-                    if (tv_question_text != null) {
-                        tv_question_text.setText(question.getQuestion_text());
-                    }
+                Question question = snapshot.getValue(Question.class);
+                if (tv_question_text != null) {
+                    tv_question_text.setText(question.getQuestion_text());
+                }
 
                 usersRef = ref.child("users/" + question.getQuestion_user());
 
@@ -71,7 +78,7 @@ public class QuestionActivity extends AppCompatActivity {
                         User user = snapshot.getValue(User.class);
                         display_name = user.getDisplay_name();
                         getSupportActionBar().setTitle(display_name + " asks...");
-                      }
+                    }
 
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
@@ -87,17 +94,55 @@ public class QuestionActivity extends AppCompatActivity {
             }
         });
 
-       answersRef = ref.child("answers/" + question_key);
+        answersRef = ref.child("answers/" + question_key);
 
         final RecyclerView rv_question_answerslist = (RecyclerView) findViewById(R.id.rv_question_answerslist);
         rv_question_answerslist.setHasFixedSize(true);
 
-        rv_question_answerslist.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setReverseLayout(true);
+        mLayoutManager.setStackFromEnd(true);
+
+        rv_question_answerslist.setLayoutManager(mLayoutManager);
 
         frAdapter = new FirebaseRecyclerAdapter<Answer, AnswersAdapterViewHolder>(Answer.class, R.layout.list_answer,AnswersAdapterViewHolder.class, answersRef) {
             @Override
             public void populateViewHolder(final AnswersAdapterViewHolder answersAdapterViewHolder, final Answer answer, final int position) {
                 answersAdapterViewHolder.tv_listanswer_text.setText(answer.getAnswer_text());
+                if (answer.getAnswer_votes() != null) {
+                    if (answer.getAnswer_votes() == 1) {
+                        answersAdapterViewHolder.tv_listanswer_numberofvotes.setText(answer.getAnswer_votes().toString() + " vote");
+                    } else {
+                        answersAdapterViewHolder.tv_listanswer_numberofvotes.setText(answer.getAnswer_votes().toString() + " votes");
+                    }
+                }
+
+
+                answersAdapterViewHolder.tv_listanswer_vote.setText("VOTE");
+
+                votesRef = ref.child("votes/" + frAdapter.getRef(position).getKey());
+
+                votesRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+
+                        Iterator<DataSnapshot> itr = snapshot.getChildren().iterator();
+                        while(itr.hasNext()) {
+                            DataSnapshot dataSnapshot = itr.next();
+
+                            if (dataSnapshot.getKey().equals(answer_user)) {
+                                answersAdapterViewHolder.tv_listanswer_vote.setText("VOTED");
+                            }
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+                        Toast.makeText(getApplicationContext(), "The read failed: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
                 usersRef = ref.child("users/" + answer.getAnswer_user());
 
@@ -107,7 +152,7 @@ public class QuestionActivity extends AppCompatActivity {
                         User user = snapshot.getValue(User.class);
 
                         Picasso.with(getApplicationContext())
-                                .load(cloudinary.url().transformation(new Transformation().width(80).height(80).radius("max").crop("fit")).generate(user.getPhoto_url()))
+                                .load(cloudinary.url().transformation(new Transformation().width(80).height(80).radius("max").gravity("face").crop("thumb")).generate(user.getPhoto_url()))
                                 .into(answersAdapterViewHolder.iv_listanswer_userphoto);
 
                         display_name = user.getDisplay_name();
@@ -145,6 +190,42 @@ public class QuestionActivity extends AppCompatActivity {
                         extras.putString("user_id",answer.getAnswer_user());
                         intent.putExtras(extras);
                         startActivity(intent);
+
+                    }
+                });
+
+                answersAdapterViewHolder.tv_listanswer_vote.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String answer_key = frAdapter.getRef(position).getKey();
+
+                        votesRef = ref.child("votes/" + answer_key + "/" + answer_user);
+
+                        answervotesRef = ref.child("answers/" + question_key + "/" + answer_key);
+
+                        if (answersAdapterViewHolder.tv_listanswer_vote.getText().equals("VOTE")) {
+
+                            Map<String, Object> values = new HashMap<>();
+                            values.put("vote_time", ServerValue.TIMESTAMP);
+                            votesRef.push().setValue(values);
+                            answersAdapterViewHolder.tv_listanswer_vote.setText("VOTED");
+
+                            answervotesRef.child("answer_votes").setValue(answer.getAnswer_votes() + 1);
+
+                            Toast.makeText(getApplicationContext(), "You have successfully voted.", Toast.LENGTH_SHORT).show();
+
+
+                        } else {
+
+                            votesRef.removeValue();
+                            answersAdapterViewHolder.tv_listanswer_vote.setText("VOTE");
+
+                            answervotesRef.child("answer_votes").setValue(answer.getAnswer_votes() - 1);
+
+                            Toast.makeText(getApplicationContext(), "Your vote has been removed.", Toast.LENGTH_SHORT).show();
+
+                        }
+
 
                     }
                 });

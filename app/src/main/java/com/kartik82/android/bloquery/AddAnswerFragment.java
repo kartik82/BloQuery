@@ -49,6 +49,7 @@ public class AddAnswerFragment extends DialogFragment {
                     values.put("answer_user", answer_user);
                     values.put("answer_text", et_addans_enterans.getText().toString());
                     values.put("answer_time", ServerValue.TIMESTAMP);
+                    values.put("answer_votes", 0);
                     answersRef.push().setValue(values);
 
                     Toast.makeText(rootView.getContext(), "Your answer has been successfully posted!", Toast.LENGTH_SHORT).show();
