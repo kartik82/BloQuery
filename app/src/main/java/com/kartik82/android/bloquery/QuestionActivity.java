@@ -19,13 +19,13 @@ import com.cloudinary.Transformation;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class QuestionActivity extends AppCompatActivity {
@@ -39,6 +39,9 @@ public class QuestionActivity extends AppCompatActivity {
     private Firebase votesRef;
     private Firebase answervotesRef;
     private Firebase usersRef;
+    private Query answersQuery;
+    private long votecounter;
+    private String answer_key;
     FirebaseRecyclerAdapter<Answer, AnswersAdapterViewHolder> frAdapter;
     private Cloudinary cloudinary;
 
@@ -95,6 +98,7 @@ public class QuestionActivity extends AppCompatActivity {
         });
 
         answersRef = ref.child("answers/" + question_key);
+        answersQuery = answersRef.orderByChild("answer_votes");
 
         final RecyclerView rv_question_answerslist = (RecyclerView) findViewById(R.id.rv_question_answerslist);
         rv_question_answerslist.setHasFixedSize(true);
@@ -105,7 +109,7 @@ public class QuestionActivity extends AppCompatActivity {
 
         rv_question_answerslist.setLayoutManager(mLayoutManager);
 
-        frAdapter = new FirebaseRecyclerAdapter<Answer, AnswersAdapterViewHolder>(Answer.class, R.layout.list_answer,AnswersAdapterViewHolder.class, answersRef) {
+        frAdapter = new FirebaseRecyclerAdapter<Answer, AnswersAdapterViewHolder>(Answer.class, R.layout.list_answer,AnswersAdapterViewHolder.class, answersQuery) {
             @Override
             public void populateViewHolder(final AnswersAdapterViewHolder answersAdapterViewHolder, final Answer answer, final int position) {
                 answersAdapterViewHolder.tv_listanswer_text.setText(answer.getAnswer_text());
@@ -117,23 +121,19 @@ public class QuestionActivity extends AppCompatActivity {
                     }
                 }
 
+                votesRef = ref.child("votes/" + frAdapter.getRef(answersAdapterViewHolder.getLayoutPosition()).getKey() + "/" + answer_user);
 
-                answersAdapterViewHolder.tv_listanswer_vote.setText("VOTE");
 
-                votesRef = ref.child("votes/" + frAdapter.getRef(position).getKey());
-
-                votesRef.addValueEventListener(new ValueEventListener() {
+                votesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
 
-                        Iterator<DataSnapshot> itr = snapshot.getChildren().iterator();
-                        while(itr.hasNext()) {
-                            DataSnapshot dataSnapshot = itr.next();
+                        votecounter = snapshot.getChildrenCount();
 
-                            if (dataSnapshot.getKey().equals(answer_user)) {
-                                answersAdapterViewHolder.tv_listanswer_vote.setText("VOTED");
-                            }
-
+                        if (votecounter == 1) {
+                            answersAdapterViewHolder.tv_listanswer_vote.setText("VOTED");
+                        } else {
+                            answersAdapterViewHolder.tv_listanswer_vote.setText("VOTE");
                         }
 
                     }
@@ -168,7 +168,6 @@ public class QuestionActivity extends AppCompatActivity {
                 answersAdapterViewHolder.tv_listanswer_user.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String question_key = frAdapter.getRef(position).getKey();
 
                         Intent intent = new Intent(QuestionActivity.this, UserActivity.class);
                         Bundle extras = new Bundle();
@@ -183,7 +182,6 @@ public class QuestionActivity extends AppCompatActivity {
                 answersAdapterViewHolder.iv_listanswer_userphoto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String question_key = frAdapter.getRef(position).getKey();
 
                         Intent intent = new Intent(QuestionActivity.this, UserActivity.class);
                         Bundle extras = new Bundle();
@@ -197,34 +195,48 @@ public class QuestionActivity extends AppCompatActivity {
                 answersAdapterViewHolder.tv_listanswer_vote.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String answer_key = frAdapter.getRef(position).getKey();
+
+                        answer_key = frAdapter.getRef(answersAdapterViewHolder.getLayoutPosition()).getKey();
+
 
                         votesRef = ref.child("votes/" + answer_key + "/" + answer_user);
-
                         answervotesRef = ref.child("answers/" + question_key + "/" + answer_key);
 
-                        if (answersAdapterViewHolder.tv_listanswer_vote.getText().equals("VOTE")) {
 
-                            Map<String, Object> values = new HashMap<>();
-                            values.put("vote_time", ServerValue.TIMESTAMP);
-                            votesRef.push().setValue(values);
-                            answersAdapterViewHolder.tv_listanswer_vote.setText("VOTED");
+                        votesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
 
-                            answervotesRef.child("answer_votes").setValue(answer.getAnswer_votes() + 1);
+                                votecounter = snapshot.getChildrenCount();
 
-                            Toast.makeText(getApplicationContext(), "You have successfully voted.", Toast.LENGTH_SHORT).show();
+                                if (votecounter == 0) {
 
 
-                        } else {
+                                    Map<String, Object> values = new HashMap<>();
+                                    values.put("vote_time", ServerValue.TIMESTAMP);
+                                    votesRef.push().setValue(values);
+                                    answervotesRef.child("answer_votes").setValue(answer.getAnswer_votes() + 1);
 
-                            votesRef.removeValue();
-                            answersAdapterViewHolder.tv_listanswer_vote.setText("VOTE");
+                                    Toast.makeText(getApplicationContext(), "You have successfully voted.", Toast.LENGTH_SHORT).show();
 
-                            answervotesRef.child("answer_votes").setValue(answer.getAnswer_votes() - 1);
+                                } else {
 
-                            Toast.makeText(getApplicationContext(), "Your vote has been removed.", Toast.LENGTH_SHORT).show();
+                                    System.out.println("not zero click " + answer.getAnswer_text() + " " + votecounter);
 
-                        }
+                                    votesRef.removeValue();
+                                    answervotesRef.child("answer_votes").setValue(answer.getAnswer_votes() - 1);
+
+                                    Toast.makeText(getApplicationContext(), "Your vote has been removed.", Toast.LENGTH_SHORT).show();
+
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+                                Toast.makeText(getApplicationContext(), "The read failed: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
 
                     }
